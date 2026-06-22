@@ -1,6 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" dir="ltr">
 <head>
+    <!-- Anti-FOUC: Prevent flash of unstyled content -->
+    <style>html{opacity:0;transition:opacity .3s ease}html.tw-ready{opacity:1}</style>
+    <script>(function(){var d=document;var s=d.createElement('style');s.textContent='body{background:#08080f;color:#f0eef6;margin:0}a{text-decoration:none;color:inherit}img{max-width:100%;height:auto}button{background:0 0;border:0;cursor:pointer}';d.head.appendChild(s);var c=0;var i=setInterval(function(){c++;if(window.tailwind||d.querySelector('style[data-tailwind]')||c>20){clearInterval(i);d.documentElement.classList.add('tw-ready')}},100);setTimeout(function(){clearInterval(i);d.documentElement.classList.add('tw-ready')},1500)})();</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -52,7 +56,7 @@
     <link rel="dns-prefetch" href="https://www.youtube.com">
 
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -130,8 +134,11 @@
 
         .nav-fixed {
             position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-            padding: 20px 24px;
+            padding: 16px 20px;
             transition: all 0.4s ease;
+        }
+        @media (min-width: 768px) {
+            .nav-fixed { padding: 20px 24px; }
         }
         .nav-fixed.scrolled {
             background: rgba(8, 8, 15, 0.9); backdrop-filter: blur(20px);
@@ -165,9 +172,13 @@
         .section {
             position: relative; width: 100%; min-height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            padding: 100px 24px 60px; overflow: hidden;
+            padding: 80px 16px 40px; overflow: hidden;
         }
-        .section-auto { min-height: auto; padding: 100px 24px; }
+        .section-auto { min-height: auto; padding: 80px 16px; }
+        @media (min-width: 768px) {
+            .section { padding: 100px 24px 60px; }
+            .section-auto { padding: 100px 24px; }
+        }
 
         .blob {
             position: absolute; border-radius: 50%; filter: blur(100px);
@@ -287,7 +298,7 @@
             min-width: 340px;
         }
         @media (max-width: 640px) {
-            .carousel-item { flex: 0 0 280px; min-width: 280px; }
+            .carousel-item { flex: 0 0 85vw; min-width: 85vw; }
         }
 
         .carousel-arrow {
@@ -341,7 +352,7 @@
         .modal-overlay.open { opacity: 1; pointer-events: all; }
         .modal-box {
             background: #0f0f1a; border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 24px; max-width: 1000px; width: 100%;
+            border-radius: 24px; max-width: 1000px; width: 100%; margin: 16px;
             max-height: 90vh; overflow: hidden;
             transform: translateY(60px) scale(0.95); opacity: 0;
             transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
@@ -351,6 +362,10 @@
         .modal-scroll { overflow-y: auto; max-height: 70vh; padding: 24px 32px 32px; }
         .modal-scroll::-webkit-scrollbar { width: 6px; }
         .modal-scroll::-webkit-scrollbar-thumb { background: #a78bfa; border-radius: 3px; }
+        @media (max-width: 640px) {
+            .modal-box { margin: 8px; border-radius: 16px; max-height: 95vh; }
+            .modal-scroll { padding: 16px 20px 20px !important; }
+        }
 
         .video-container {
             position: relative;
@@ -471,73 +486,99 @@
             .design-nav.next { right: 8px; }
         }
 
-</style>
+
+        /* Stabilize layout to reduce CLS */
+        img { max-width: 100%; height: auto; }
+        .aspect-video { aspect-ratio: 16 / 9; }
+        .aspect-[4\/3] { aspect-ratio: 4 / 3; }
+
+        /* Font display swap untuk menghindari layout shift */
+        @font-face {
+            font-family: 'Outfit';
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Inter';
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'JetBrains Mono';
+            font-display: swap;
+        }
+
+    </style>
 </head>
 <body>
+    <!-- Skip to main content (Accessibility) -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[200] focus:bg-purple-400 focus:text-black focus:px-4 focus:py-2 focus:rounded-lg focus:font-bold">
+        Lewati ke konten utama
+    </a>
+
     <div class="grain"></div>
     <div class="cursor-dot" id="cursorDot"></div>
     <div class="cursor-ring" id="cursorRing"></div>
     <div class="progress-bar" id="progressBar"></div>
 
     <!-- Navigation -->
-    <nav class="nav-fixed" id="mainNav">
+    <nav class="nav-fixed" id="mainNav" role="navigation" aria-label="Navigasi utama">
         <div class="max-w-7xl mx-auto w-full flex justify-between items-center">
             <a href="#hero" class="font-display text-xl font-bold text-white tracking-tight" data-hover>
                 Portofolio Hega Satriya<span class="text-purple-400">.</span>
             </a>
             <div class="hidden md:flex items-center gap-8">
-                <a href="#about" class="text-sm text-gray-400 hover:text-white transition-colors duration-300 relative group" data-hover>
+                <a href="#about" class="text-sm text-gray-300 hover:text-white transition-colors duration-300 relative group" data-hover>
                     About
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full"></span>
                 </a>
-                <a href="#experience" class="text-sm text-gray-400 hover:text-white transition-colors duration-300 relative group" data-hover>
+                <a href="#experience" class="text-sm text-gray-300 hover:text-white transition-colors duration-300 relative group" data-hover>
                     Experience
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full"></span>
                 </a>
-                <a href="#education" class="text-sm text-gray-400 hover:text-white transition-colors duration-300 relative group" data-hover>
+                <a href="#education" class="text-sm text-gray-300 hover:text-white transition-colors duration-300 relative group" data-hover>
                     Education
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full"></span>
                 </a>
-                <a href="#work" class="text-sm text-gray-400 hover:text-white transition-colors duration-300 relative group" data-hover>
+                <a href="#work" class="text-sm text-gray-300 hover:text-white transition-colors duration-300 relative group" data-hover>
                     Work
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full"></span>
                 </a>
-                <a href="#certificates" class="text-sm text-gray-400 hover:text-white transition-colors duration-300 relative group" data-hover>
+                <a href="#certificates" class="text-sm text-gray-300 hover:text-white transition-colors duration-300 relative group" data-hover>
                     Certificates
                     <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-400 transition-all duration-300 group-hover:w-full"></span>
                 </a>
                 <a href="#contact" class="btn-glow px-5 py-2.5 rounded-full text-xs font-display" data-hover>Contact</a>
             </div>
-            <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-white" id="mobileMenuBtn" data-hover>
+            <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-white" id="mobileMenuBtn" data-hover aria-label="Toggle menu navigasi">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
         </div>
-        <div id="mobileMenuOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[150] flex flex-col items-center justify-center gap-8 opacity-0 pointer-events-none transition-opacity duration-500">
-            <button onclick="toggleMobileMenu()" class="absolute top-6 right-6 p-2 text-white">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <div id="mobileMenuOverlay" class="fixed inset-0 bg-[#08080f] z-[9999] flex flex-col items-center justify-center gap-8 opacity-0 pointer-events-none transition-opacity duration-500" style="backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px)">
+            <button onclick="toggleMobileMenu()" class="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-purple-400/20 transition-all" aria-label="Tutup menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
-            <a href="#about" onclick="toggleMobileMenu()" class="font-display text-3xl font-bold text-white hover:text-purple-400 transition-colors">About</a>
-            <a href="#experience" onclick="toggleMobileMenu()" class="font-display text-3xl font-bold text-white hover:text-purple-400 transition-colors">Experience</a>
-            <a href="#education" onclick="toggleMobileMenu()" class="font-display text-3xl font-bold text-white hover:text-purple-400 transition-colors">Education</a>
-            <a href="#work" onclick="toggleMobileMenu()" class="font-display text-3xl font-bold text-white hover:text-purple-400 transition-colors">Work</a>
-            <a href="#certificates" onclick="toggleMobileMenu()" class="font-display text-3xl font-bold text-white hover:text-purple-400 transition-colors">Certificates</a>
-            <a href="#contact" onclick="toggleMobileMenu()" class="font-display text-3xl font-bold text-white hover:text-purple-400 transition-colors">Contact</a>
+            <a href="#about" onclick="toggleMobileMenu()" class="font-display text-3xl sm:text-4xl font-bold text-white hover:text-purple-400 transition-colors">About</a>
+            <a href="#experience" onclick="toggleMobileMenu()" class="font-display text-3xl sm:text-4xl font-bold text-white hover:text-purple-400 transition-colors">Experience</a>
+            <a href="#education" onclick="toggleMobileMenu()" class="font-display text-3xl sm:text-4xl font-bold text-white hover:text-purple-400 transition-colors">Education</a>
+            <a href="#work" onclick="toggleMobileMenu()" class="font-display text-3xl sm:text-4xl font-bold text-white hover:text-purple-400 transition-colors">Work</a>
+            <a href="#certificates" onclick="toggleMobileMenu()" class="font-display text-3xl sm:text-4xl font-bold text-white hover:text-purple-400 transition-colors">Certificates</a>
+            <a href="#contact" onclick="toggleMobileMenu()" class="font-display text-3xl sm:text-4xl font-bold text-white hover:text-purple-400 transition-colors">Contact</a>
+            <p class="absolute bottom-8 text-gray-600 text-xs font-mono">© 2026 Hega Satriya Hutama</p>
         </div>
     </nav>
 
     <!-- Section Dots -->
-    <div class="section-dots" id="sectionDots">
-        <div class="section-dot active" data-index="0" data-label="Intro" onclick="scrollToSection('hero')"></div>
-        <div class="section-dot" data-index="1" data-label="About" onclick="scrollToSection('about')"></div>
-        <div class="section-dot" data-index="2" data-label="Experience" onclick="scrollToSection('experience')"></div>
-        <div class="section-dot" data-index="3" data-label="Education" onclick="scrollToSection('education')"></div>
-        <div class="section-dot" data-index="4" data-label="Work" onclick="scrollToSection('work')"></div>
-        <div class="section-dot" data-index="5" data-label="Certificates" onclick="scrollToSection('certificates')"></div>
-        <div class="section-dot" data-index="6" data-label="Contact" onclick="scrollToSection('contact')"></div>
+    <div class="section-dots hidden md:flex" id="sectionDots">
+        <div class="section-dot active" data-index="0" data-label="Intro" onclick="scrollToSection('hero')" aria-label="Navigasi ke bagian Intro"></div>
+        <div class="section-dot" data-index="1" data-label="About" onclick="scrollToSection('about')" aria-label="Navigasi ke bagian About"></div>
+        <div class="section-dot" data-index="2" data-label="Experience" onclick="scrollToSection('experience')" aria-label="Navigasi ke bagian Experience"></div>
+        <div class="section-dot" data-index="3" data-label="Education" onclick="scrollToSection('education')" aria-label="Navigasi ke bagian Education"></div>
+        <div class="section-dot" data-index="4" data-label="Work" onclick="scrollToSection('work')" aria-label="Navigasi ke bagian Work"></div>
+        <div class="section-dot" data-index="5" data-label="Certificates" onclick="scrollToSection('certificates')" aria-label="Navigasi ke bagian Certificates"></div>
+        <div class="section-dot" data-index="6" data-label="Contact" onclick="scrollToSection('contact')" aria-label="Navigasi ke bagian Contact"></div>
     </div>
 
     <!-- ==================== HERO ==================== -->
-    <section class="section" id="hero">
+    <section class="section" id="hero" role="main">
         <div class="blob w-[500px] h-[500px] bg-purple-400 -top-40 -right-40"></div>
         <div class="blob w-[400px] h-[400px] bg-pink-400 -bottom-20 -left-20"></div>
         <div class="blob w-[300px] h-[300px] bg-blue-400 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
@@ -546,37 +587,36 @@
                 <div class="order-2 lg:order-1">
                     <p class="font-mono text-[10px] text-purple-400 tracking-[0.3em] uppercase mb-6 reveal">S1 ILMU KOMUNIKASI · SOCIAL MEDIA SPECIALIST</p>
                     <div class="reveal stagger-1">
-                        <h1 class="font-display text-7xl md:text-8xl lg:text-9xl font-black leading-[0.85] tracking-tight">HEGA</h1>
+                        <h1 class="font-display text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black leading-[0.85] tracking-tight">HEGA</h1>
                     </div>
                     <div class="reveal stagger-2">
-                        <h1 class="font-display text-7xl md:text-8xl lg:text-9xl font-black leading-[0.85] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">SATRIA</h1>
+                        <h1 class="font-display text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black leading-[0.85] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">SATRIA</h1>
                     </div>
                     <div class="reveal stagger-3">
-                        <h1 class="font-display text-6xl md:text-7xl lg:text-8xl font-light italic leading-[0.85] tracking-tight text-gray-500">Hutama</h1>
+                        <h1 class="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-light italic leading-[0.85] tracking-tight text-gray-400">Hutama</h1>
                     </div>
                     <div class="reveal stagger-4 mt-8 max-w-md">
-                        <p class="text-gray-400 text-base leading-relaxed">
+                        <p class="text-gray-300 text-sm md:text-base leading-relaxed">
                             Melalui perpaduan keahlian di bidang digital marketing, visual design, dan social media strategy, saya di sini untuk mengubah ide menjadi <span class="text-purple-400 font-medium">eksekusi digital yang tepat sasaran</span>. 
                             
                         </p>
                     </div>
-                    <div class="reveal stagger-5 mt-8 flex flex-wrap gap-4">
-                        <a href="#work" class="btn-glow px-8 py-4 rounded-full text-sm font-display">LIHAT KARYA</a>
-                        <a href="#contact" class="btn-outline px-8 py-4 rounded-full text-sm font-display">HUBUNGI SAYA</a>
+                    <div class="reveal stagger-5 mt-6 md:mt-8 flex flex-wrap gap-3 md:gap-4">
+                        <a href="#work" class="btn-glow px-6 py-3 md:px-8 md:py-4 rounded-full text-xs md:text-sm font-display">LIHAT KARYA</a>
+                        <a href="#contact" class="btn-outline px-6 py-3 md:px-8 md:py-4 rounded-full text-xs md:text-sm font-display">HUBUNGI SAYA</a>
                     </div>
                 </div>
                 <div class="order-1 lg:order-2 flex justify-center reveal-scale">
                     <div class="relative">
-                        <div class="profile-ring w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
+                        <div class="profile-ring w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 mx-auto">
                             <div class="w-full h-full rounded-full overflow-hidden bg-gray-900">
-                                <img src="foto-profil.png" 
-                                     alt="Hega Satriya Hutama" class="w-full h-full object-cover"
+                                <img src="foto-profil.png" width="400" height="400" alt="Hega Satriya Hutama" class="w-full h-full object-cover"
                                      onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-8xl font-display font-black text-white/10\'>HS</div>'">
                             </div>
                         </div>
                         <div class="absolute -bottom-2 -left-4 md:bottom-4 md:-left-8 card p-5 shadow-2xl">
                             <p class="font-display text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">20-60%</p>
-                            <p class="text-[10px] text-gray-500 mt-1 leading-relaxed max-w-[160px] font-mono">RATA-RATA KENAIKAN ENGAGEMENT</p>
+                            <p class="text-[10px] text-gray-400 mt-1 leading-relaxed max-w-[160px] font-mono">RATA-RATA KENAIKAN ENGAGEMENT</p>
                         </div>
                     </div>
                 </div>
@@ -601,7 +641,7 @@
                 </h2>
             </div>
             <div class="grid lg:grid-cols-2 gap-12">
-                <div class="reveal stagger-1 space-y-6 text-gray-400 text-base leading-relaxed">
+                <div class="reveal stagger-1 space-y-4 md:space-y-6 text-gray-300 text-sm md:text-base leading-relaxed">
                     <p>Saya <strong class="text-white">Hega Satriya Hutama</strong>, sarjana S1 Ilmu Komunikasi di <strong class="text-white">Universitas Sultan Agung Islam Semarang</strong>. Berbasis di Semarang, aktif di berbagai organisasi kampus dan proyek digital.</p>
                     <p>Perjalanan saya dimulai dari kepanitiaan kampus, dari divisi media di <strong class="text-white">Lembaga Kajian Mahasiswa Unissula</strong>, naik jadi <strong class="text-white">Wakil Presiden Media & Konten Fikomedia</strong> dan <strong class="text-white">Koordinator Komunikasi BEM Unissula</strong>. Di situlah saya sadar: komunikasi itu bukan cuma soal menyampaikan pesan, tapi soal <em class="text-purple-400">bikin orang merasa diperhatikan</em>.</p>
                     <p>Sebagai Content Creator dan Social Media Specialist, saya selalu menjaga <strong class="text-white">konsistensi</strong>, dan konten hari ini harus lebih baik dari kemarin.</p>
@@ -621,8 +661,8 @@
                         </div>
                         <div class="mt-8 pt-6 border-t border-white/5">
                             <div class="grid grid-cols-2 gap-4">
-                                <div><p class="font-display text-2xl font-bold text-white">8+</p><p class="text-xs text-gray-500 mt-1">Organisasi & Kerja</p></div>
-                                <div><p class="font-display text-2xl font-bold text-white">11</p><p class="text-xs text-gray-500 mt-1">Sertifikasi</p></div>
+                                <div><p class="font-display text-2xl font-bold text-white">8+</p><p class="text-xs text-gray-400 mt-1">Organisasi & Kerja</p></div>
+                                <div><p class="font-display text-2xl font-bold text-white">11</p><p class="text-xs text-gray-400 mt-1">Sertifikasi</p></div>
                             </div>
                         </div>
                     </div>
@@ -643,16 +683,16 @@
                 <p class="font-mono text-[10px] text-purple-400 tracking-[0.3em] uppercase mb-4">03 — EXPERIENCE</p>
                 <h2 class="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white">Perjalanan Karir</h2>
             </div>
-            <div class="grid md:grid-cols-2 gap-x-10 gap-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-x-10 md:gap-y-6">
                 <div class="reveal stagger-1">
                     <div class="card p-6">
                         <div class="flex items-start gap-4">
                             <div class="timeline-dot mt-1"></div>
                             <div>
-                                <p class="font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-1">Feb 2025 — Feb 2026</p>
+                                <p class="font-mono text-[10px] text-gray-400 uppercase tracking-wider mb-1">Feb 2025 — Feb 2026</p>
                                 <h3 class="font-display text-lg font-bold text-white mb-1">Content Creator & Social Media</h3>
                                 <p class="text-purple-400 text-sm font-medium mb-2">Karya Perdana Event Organizer</p>
-                                <p class="text-gray-400 text-sm leading-relaxed">Konsep, scripting, shooting, editing. Handle strategi media sosial buat ningkatin Engagement.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Konsep, scripting, shooting, editing. Handle strategi media sosial buat ningkatin Engagement.</p>
                             </div>
                              </div>
                         </div>
@@ -663,10 +703,10 @@
                         <div class="flex items-start gap-4">
                             <div class="timeline-dot mt-1"></div>
                             <div>
-                                <p class="font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-1">Okt 2024 — Jan 2025</p>
+                                <p class="font-mono text-[10px] text-gray-400 uppercase tracking-wider mb-1">Okt 2024 — Jan 2025</p>
                                 <h3 class="font-display text-lg font-bold text-white mb-1">Content Creator & Social Media</h3>
                                 <p class="text-purple-400 text-sm font-medium mb-2">PT VIP Group Indonesia</p>
-                                <p class="text-gray-400 text-sm leading-relaxed">Produksi konten end-to-end: konsep, scripting, shooting, editing. Handle strategi media sosial buat ningkatin visibilitas brand.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Produksi konten end-to-end: konsep, scripting, shooting, editing. Handle strategi media sosial buat ningkatin visibilitas brand.</p>
                         </div>
                     </div>
                 </div>
@@ -675,10 +715,10 @@
                         <div class="flex items-start gap-4">
                             <div class="timeline-dot mt-1"></div>
                             <div>
-                                <p class="font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-1">Nov 2024 — Des 2024</p>
+                                <p class="font-mono text-[10px] text-gray-400 uppercase tracking-wider mb-1">Nov 2024 — Des 2024</p>
                                 <h3 class="font-display text-lg font-bold text-white mb-1">Coordinator Social Media & Videography</h3>
                                 <p class="text-purple-400 text-sm font-medium mb-2">LENTERA</p>
-                                <p class="text-gray-400 text-sm leading-relaxed">Lead strategi konten media sosial dan produksi video buat acara fakultas skala besar.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Lead strategi konten media sosial dan produksi video buat acara fakultas skala besar.</p>
                             </div>
                         </div>
                     </div>
@@ -688,10 +728,10 @@
                         <div class="flex items-start gap-4">
                             <div class="timeline-dot mt-1"></div>
                             <div>
-                                <p class="font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-1">Sep 2024 — Okt 2024</p>
+                                <p class="font-mono text-[10px] text-gray-400 uppercase tracking-wider mb-1">Sep 2024 — Okt 2024</p>
                                 <h3 class="font-display text-lg font-bold text-white mb-1">Coordinator Social Media & Videography</h3>
                                 <p class="text-purple-400 text-sm font-medium mb-2">FAKULTAIR</p>
-                                <p class="text-gray-400 text-sm leading-relaxed">Mengelola dokumentasi visual dan distribusi konten di platform media sosial.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Mengelola dokumentasi visual dan distribusi konten di platform media sosial.</p>
                             </div>
                         </div>
                     </div>
@@ -701,10 +741,10 @@
                         <div class="flex items-start gap-4">
                             <div class="timeline-dot mt-1"></div>
                             <div>
-                                <p class="font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-1">Feb 2024 — Feb 2025</p>
+                                <p class="font-mono text-[10px] text-gray-400 uppercase tracking-wider mb-1">Feb 2024 — Feb 2025</p>
                                 <h3 class="font-display text-lg font-bold text-white mb-1">Communication & Information Coordinator</h3>
                                 <p class="text-purple-400 text-sm font-medium mb-2">BEM FBIK Unissula</p>
-                                <p class="text-gray-400 text-sm leading-relaxed">Menyusun strategi komunikasi organisasi, Mengelola seluruh aset visual, dan memastikan informasi sampai dengan efektif.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Menyusun strategi komunikasi organisasi, Mengelola seluruh aset visual, dan memastikan informasi sampai dengan efektif.</p>
                             </div>
                         </div>
                     </div>
@@ -714,10 +754,10 @@
                         <div class="flex items-start gap-4">
                             <div class="timeline-dot mt-1"></div>
                             <div>
-                                <p class="font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-1">Feb 2023 — Feb 2025</p>
+                                <p class="font-mono text-[10px] text-gray-400 uppercase tracking-wider mb-1">Feb 2023 — Feb 2025</p>
                                 <h3 class="font-display text-lg font-bold text-white mb-1">Vice President & Media Content</h3>
                                 <p class="text-purple-400 text-sm font-medium mb-2">Fikomedia</p>
-                                <p class="text-gray-400 text-sm leading-relaxed">Ngelead tim media, nyusun strategi komunikasi fakultas, dan ngelola aset visual serta konten kreatif.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Ngelead tim media, nyusun strategi komunikasi fakultas, dan ngelola aset visual serta konten kreatif.</p>
                             </div>
                         </div>
                     </div>
@@ -727,10 +767,10 @@
                         <div class="flex items-start gap-4">
                             <div class="timeline-dot mt-1"></div>
                             <div>
-                                <p class="font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-1">Apr 2023 — Apr 2024</p>
+                                <p class="font-mono text-[10px] text-gray-400 uppercase tracking-wider mb-1">Apr 2023 — Apr 2024</p>
                                 <h3 class="font-display text-lg font-bold text-white mb-1">Communication Media Coordinator</h3>
                                 <p class="text-purple-400 text-sm font-medium mb-2">Lembaga Kajian Mahasiswa Unissula</p>
-                                <p class="text-gray-400 text-sm leading-relaxed">Koordinasi media dan publikasi buat kegiatan lembaga Kajian mahasiswa.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Koordinasi media dan publikasi buat kegiatan lembaga Kajian mahasiswa.</p>
                             </div>
                         </div>
                     </div>
@@ -740,10 +780,10 @@
                         <div class="flex items-start gap-4">
                             <div class="timeline-dot mt-1"></div>
                             <div>
-                                <p class="font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-1">Agu 2023 — Nov 2023</p>
+                                <p class="font-mono text-[10px] text-gray-400 uppercase tracking-wider mb-1">Agu 2023 — Nov 2023</p>
                                 <h3 class="font-display text-lg font-bold text-white mb-1">Event Chairperson</h3>
                                 <p class="text-purple-400 text-sm font-medium mb-2">MEDKOMFEST</p>
-                                <p class="text-gray-400 text-sm leading-relaxed">Ketua pelaksana event Pelatihan dan festival komunikasi tingkat Universitas.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Ketua pelaksana event Pelatihan dan festival komunikasi tingkat Universitas.</p>
                             </div>
                         </div>
                     </div>
@@ -753,10 +793,10 @@
                         <div class="flex items-start gap-4">
                             <div class="timeline-dot mt-1"></div>
                             <div>
-                                <p class="font-mono text-[10px] text-gray-600 uppercase tracking-wider mb-1">Sep 2023 — Okt 2023</p>
+                                <p class="font-mono text-[10px] text-gray-400 uppercase tracking-wider mb-1">Sep 2023 — Okt 2023</p>
                                 <h3 class="font-display text-lg font-bold text-white mb-1">Documentation & Content Creator</h3>
                                 <p class="text-purple-400 text-sm font-medium mb-2">COMMFORIA</p>
-                                <p class="text-gray-400 text-sm leading-relaxed">Dokumentasi acara dan produksi konten kreatif buat Event COMMFORIA.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Dokumentasi acara dan produksi konten kreatif buat Event COMMFORIA.</p>
                             </div>
                         </div>
                     </div>
@@ -777,7 +817,7 @@
                 <p class="font-mono text-[10px] text-purple-400 tracking-[0.3em] uppercase mb-4">04 — EDUCATION & TOOLS</p>
                 <h2 class="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white">Pendidikan & Tools</h2>
             </div>
-            <div class="grid lg:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
                 <div class="space-y-6">
                     <div class="reveal stagger-1 card p-6">
                         <div class="flex items-start gap-4">
@@ -787,7 +827,7 @@
                             <div>
                                 <h3 class="font-display text-lg font-bold text-white">S1 Ilmu Komunikasi</h3>
                                 <p class="text-purple-400 text-sm font-medium">Universitas Islam Sultan Agung Semarang</p>
-                                <p class="text-gray-600 text-xs mt-1 font-mono">Fakultas Ilmu Komunikasi · 2022 — 2026</p>
+                                <p class="text-gray-400 text-xs mt-1 font-mono">Fakultas Ilmu Komunikasi · 2022 — 2026</p>
                             </div>
                         </div>
                     </div>
@@ -799,7 +839,7 @@
                             <div>
                                 <h3 class="font-display text-lg font-bold text-white">SMA Negeri 2 Kendal</h3>
                                 <p class="text-purple-400 text-sm font-medium">Jurusan Ilmu Pengetahuan Sosial (IPS)</p>
-                                <p class="text-gray-600 text-xs mt-1 font-mono">Juni 2018 — Juni 2021</p>
+                                <p class="text-gray-400 text-xs mt-1 font-mono">Juni 2018 — Juni 2021</p>
                             </div>
                         </div>
                     </div>
@@ -808,11 +848,11 @@
                         <div class="space-y-3">
                             <div class="flex items-start gap-3">
                                 <div class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-2 flex-shrink-0"></div>
-                                <div><p class="text-sm text-white font-medium">Rapid Digital Marketing</p><p class="text-xs text-gray-600 font-mono">Maxy Academy · Nov 2024 — Des 2024</p></div>
+                                <div><p class="text-sm text-white font-medium">Rapid Digital Marketing</p><p class="text-xs text-gray-400 font-mono">Maxy Academy · Nov 2024 — Des 2024</p></div>
                             </div>
                             <div class="flex items-start gap-3">
                                 <div class="w-1.5 h-1.5 rounded-full bg-pink-400 mt-2 flex-shrink-0"></div>
-                                <div><p class="text-sm text-white font-medium">Digital Marketing</p><p class="text-xs text-gray-600 font-mono">MySkill Academy · Jan 2024 — Jun 2024</p></div>
+                                <div><p class="text-sm text-white font-medium">Digital Marketing</p><p class="text-xs text-gray-400 font-mono">MySkill Academy · Jan 2024 — Jun 2024</p></div>
                             </div>
                         </div>
                     </div>
@@ -823,23 +863,23 @@
                         <div class="grid grid-cols-1 gap-3">
                             <div class="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-purple-400/20 transition-all">
                                 <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 font-bold text-xs">Ps</div>
-                                <div><p class="font-medium text-sm text-white">Adobe Photoshop</p><p class="text-xs text-gray-600">Image Editing & Visual Design</p></div>
+                                <div><p class="font-medium text-sm text-white">Adobe Photoshop</p><p class="text-xs text-gray-400">Image Editing & Visual Design</p></div>
                             </div>
                             <div class="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-purple-400/20 transition-all">
                                 <div class="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-400 font-bold text-xs">Ai</div>
-                                <div><p class="font-medium text-sm text-white">Adobe Illustrator</p><p class="text-xs text-gray-600">Vector Graphics & Illustration</p></div>
+                                <div><p class="font-medium text-sm text-white">Adobe Illustrator</p><p class="text-xs text-gray-400">Vector Graphics & Illustration</p></div>
                             </div>
                             <div class="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-purple-400/20 transition-all">
                                 <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 font-bold text-xs">Pr</div>
-                                <div><p class="font-medium text-sm text-white">Adobe Premiere Pro</p><p class="text-xs text-gray-600">Professional Video Editing</p></div>
+                                <div><p class="font-medium text-sm text-white">Adobe Premiere Pro</p><p class="text-xs text-gray-400">Professional Video Editing</p></div>
                             </div>
                             <div class="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-purple-400/20 transition-all">
                                 <div class="w-10 h-10 rounded-lg bg-[#00C4CC]/10 flex items-center justify-center text-[#00C4CC] font-bold text-xs">Ca</div>
-                                <div><p class="font-medium text-sm text-white">Canva</p><p class="text-xs text-gray-600">Quick Visual Content Design</p></div>
+                                <div><p class="font-medium text-sm text-white">Canva</p><p class="text-xs text-gray-400">Quick Visual Content Design</p></div>
                             </div>
                             <div class="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-purple-400/20 transition-all">
                                 <div class="w-10 h-10 rounded-lg bg-gray-500/10 flex items-center justify-center text-gray-300 font-bold text-xs">Cc</div>
-                                <div><p class="font-medium text-sm text-white">CapCut</p><p class="text-xs text-gray-600">Mobile Video & Short Form</p></div>
+                                <div><p class="font-medium text-sm text-white">CapCut</p><p class="text-xs text-gray-400">Mobile Video & Short Form</p></div>
                             </div>
                         </div>
                     </div>
@@ -862,17 +902,17 @@
                     <h2 class="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white">Hasil Karya</h2>
                 </div>
                 <div class="flex gap-2 mt-4 md:mt-0">
-                    <button onclick="filterWork('all')" class="filter-btn active px-4 py-2 rounded-full text-xs font-medium border border-white/10 text-gray-400 transition-all hover:border-white/20" data-filter="all">Semua</button>
-                    <button onclick="filterWork('video')" class="filter-btn px-4 py-2 rounded-full text-xs font-medium border border-white/10 text-gray-400 transition-all hover:border-white/20" data-filter="video">Video</button>
-                    <button onclick="filterWork('design')" class="filter-btn px-4 py-2 rounded-full text-xs font-medium border border-white/10 text-gray-400 transition-all hover:border-white/20" data-filter="design">Desain Grafis</button>
-                    <button onclick="filterWork('strategy')" class="filter-btn px-4 py-2 rounded-full text-xs font-medium border border-white/10 text-gray-400 transition-all hover:border-white/20" data-filter="strategy">Strategi</button>
+                    <button onclick="filterWork('all')" aria-label="Tampilkan semua karya" class="filter-btn active px-4 py-2 rounded-full text-xs font-medium border border-white/10 text-gray-300 transition-all hover:border-white/20" data-filter="all">Semua</button>
+                    <button onclick="filterWork('video')" aria-label="Filter karya video" class="filter-btn px-4 py-2 rounded-full text-xs font-medium border border-white/10 text-gray-300 transition-all hover:border-white/20" data-filter="video">Video</button>
+                    <button onclick="filterWork('design')" aria-label="Filter karya desain grafis" class="filter-btn px-4 py-2 rounded-full text-xs font-medium border border-white/10 text-gray-300 transition-all hover:border-white/20" data-filter="design">Desain Grafis</button>
+                    <button onclick="filterWork('strategy')" aria-label="Filter karya strategi" class="filter-btn px-4 py-2 rounded-full text-xs font-medium border border-white/10 text-gray-300 transition-all hover:border-white/20" data-filter="strategy">Strategi</button>
                 </div>
             </div>
-            <div id="workGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div id="workGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                 <div class="work-item reveal stagger-1" data-category="video" onclick="openModal('proj1')">
                     <div class="card overflow-hidden cursor-pointer group">
                         <div class="aspect-video bg-gray-900 overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&auto=format&fit=crop&q=80" alt="After Movie" class="w-full h-full object-cover card-img" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&auto=format&fit=crop&q=80" width="800" height="450" alt="After Movie" class="w-full h-full object-cover card-img" loading="lazy">
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
                                     <svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -882,14 +922,14 @@
                         <div class="p-5">
                             <span class="tag-pill mb-2 inline-block">Video Production</span>
                             <h4 class="font-display text-base font-bold text-white mt-2">After Movie Makrab Fikomedia</h4>
-                            <p class="text-gray-400 text-xs mt-1">Persiapan brief, videografi, capturing, dan editing.</p>
+                            <p class="text-gray-300 text-xs mt-1">Persiapan brief, videografi, capturing, dan editing.</p>
                         </div>
                     </div>
                 </div>
                 <div class="work-item reveal stagger-2" data-category="video" onclick="openModal('proj2')">
                     <div class="card overflow-hidden cursor-pointer group">
                         <div class="aspect-video bg-gray-900 overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800&auto=format&fit=crop&q=80" alt="Podcast" class="w-full h-full object-cover card-img" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800&auto=format&fit=crop&q=80" width="800" height="450" alt="Podcast" class="w-full h-full object-cover card-img" loading="lazy">
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
                                     <svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -899,14 +939,14 @@
                         <div class="p-5">
                             <span class="tag-pill mb-2 inline-block">Video & Audio</span>
                             <h4 class="font-display text-base font-bold text-white mt-2">Obtobus Podcast — Horror Scene</h4>
-                            <p class="text-gray-400 text-xs mt-1">Guest speaker dan editor konten podcast.</p>
+                            <p class="text-gray-300 text-xs mt-1">Guest speaker dan editor konten podcast.</p>
                         </div>
                     </div>
                 </div>
                 <div class="work-item reveal stagger-3" data-category="video" onclick="openModal('proj3')">
                     <div class="card overflow-hidden cursor-pointer group">
                         <div class="aspect-video bg-gray-900 overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&auto=format&fit=crop&q=80" alt="Advertisement" class="w-full h-full object-cover card-img" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&auto=format&fit=crop&q=80" width="800" height="450" alt="Advertisement" class="w-full h-full object-cover card-img" loading="lazy">
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
                                     <svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -916,7 +956,7 @@
                         <div class="p-5">
                             <span class="tag-pill mb-2 inline-block">Advertisement</span>
                             <h4 class="font-display text-base font-bold text-white mt-2">Advertisement Tolak Angin X Hindia</h4>
-                            <p class="text-gray-400 text-xs mt-1">Director, scriptwriter, dan videographer.</p>
+                            <p class="text-gray-300 text-xs mt-1">Director, scriptwriter, dan videographer.</p>
                         </div>
                     </div>
                 </div>
@@ -924,7 +964,7 @@
                 <div class="work-item reveal stagger-1" data-category="video" onclick="openModal('proj7')">
                     <div class="card overflow-hidden cursor-pointer group">
                         <div class="aspect-video bg-gray-900 overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&auto=format&fit=crop&q=80" alt="Company Profile" class="w-full h-full object-cover card-img" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&auto=format&fit=crop&q=80" width="800" height="450" alt="Company Profile" class="w-full h-full object-cover card-img" loading="lazy">
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
                                     <svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -934,14 +974,14 @@
                         <div class="p-5">
                             <span class="tag-pill mb-2 inline-block">Video Production</span>
                             <h4 class="font-display text-base font-bold text-white mt-2">Company Profile Karya Perdana</h4>
-                            <p class="text-gray-400 text-xs mt-1">Videografi dan editing company profile untuk event organizer.</p>
+                            <p class="text-gray-300 text-xs mt-1">Videografi dan editing company profile untuk event organizer.</p>
                         </div>
                     </div>
                 </div>
                 <div class="work-item reveal stagger-2" data-category="video" onclick="openModal('proj8')">
                     <div class="card overflow-hidden cursor-pointer group">
                         <div class="aspect-video bg-gray-900 overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&auto=format&fit=crop&q=80" alt="Motion Graphic" class="w-full h-full object-cover card-img" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&auto=format&fit=crop&q=80" width="800" height="450" alt="Motion Graphic" class="w-full h-full object-cover card-img" loading="lazy">
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
                                     <svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -951,14 +991,14 @@
                         <div class="p-5">
                             <span class="tag-pill mb-2 inline-block">Motion Graphic</span>
                             <h4 class="font-display text-base font-bold text-white mt-2">Motion Graphic Reels</h4>
-                            <p class="text-gray-400 text-xs mt-1">Animasi motion graphic untuk konten media sosial brand.</p>
+                            <p class="text-gray-300 text-xs mt-1">Animasi motion graphic untuk konten media sosial brand.</p>
                         </div>
                     </div>
                 </div>
                 <div class="work-item reveal stagger-3" data-category="video" onclick="openModal('proj9')">
                     <div class="card overflow-hidden cursor-pointer group">
                         <div class="aspect-video bg-gray-900 overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800&auto=format&fit=crop&q=80" alt="Short Documentary" class="w-full h-full object-cover card-img" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=800&auto=format&fit=crop&q=80" width="800" height="450" alt="Short Documentary" class="w-full h-full object-cover card-img" loading="lazy">
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
                                     <svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -968,53 +1008,53 @@
                         <div class="p-5">
                             <span class="tag-pill mb-2 inline-block">Documentary</span>
                             <h4 class="font-display text-base font-bold text-white mt-2">Short Documentary</h4>
-                            <p class="text-gray-400 text-xs mt-1">Dokumenter singkat tentang aktivitas kampus dan komunitas.</p>
+                            <p class="text-gray-300 text-xs mt-1">Dokumenter singkat tentang aktivitas kampus dan komunitas.</p>
                         </div>
                     </div>
                 </div>
 <div class="work-item reveal stagger-1" data-category="strategy" onclick="openModal('proj4')">
                     <div class="card overflow-hidden cursor-pointer group">
                         <div class="aspect-video bg-gray-900 overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80" alt="Shopee" class="w-full h-full object-cover card-img" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80" width="800" height="450" alt="Shopee" class="w-full h-full object-cover card-img" loading="lazy">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60"></div>
                         </div>
                         <div class="p-5">
                             <span class="tag-pill mb-2 inline-block">Digital Marketing</span>
                             <h4 class="font-display text-base font-bold text-white mt-2">Integrated Marketing Plan Shopee</h4>
-                            <p class="text-gray-400 text-xs mt-1">Rencana pemasaran terpadu untuk platform e-commerce.</p>
+                            <p class="text-gray-300 text-xs mt-1">Rencana pemasaran terpadu untuk platform e-commerce.</p>
                         </div>
                     </div>
                 </div>
                 <div class="work-item reveal stagger-2" data-category="strategy" onclick="openModal('proj5')">
                     <div class="card overflow-hidden cursor-pointer group">
                         <div class="aspect-video bg-gray-900 overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800&auto=format&fit=crop&q=80" alt="Herco" class="w-full h-full object-cover card-img" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800&auto=format&fit=crop&q=80" width="800" height="450" alt="Herco" class="w-full h-full object-cover card-img" loading="lazy">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60"></div>
                         </div>
                         <div class="p-5">
                             <span class="tag-pill mb-2 inline-block">Account Management</span>
                             <h4 class="font-display text-base font-bold text-white mt-2">Account Executive Herco Digital Agency</h4>
-                            <p class="text-gray-400 text-xs mt-1">Ngehandle klien dan koordinasi tim kreatif.</p>
+                            <p class="text-gray-300 text-xs mt-1">Ngehandle klien dan koordinasi tim kreatif.</p>
                         </div>
                     </div>
                 </div>
                 <div class="work-item reveal stagger-3" data-category="strategy" onclick="openModal('proj6')">
                     <div class="card overflow-hidden cursor-pointer group">
                         <div class="aspect-video bg-gray-900 overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&auto=format&fit=crop&q=80" alt="SMM" class="w-full h-full object-cover card-img" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&auto=format&fit=crop&q=80" width="800" height="450" alt="SMM" class="w-full h-full object-cover card-img" loading="lazy">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60"></div>
                         </div>
                         <div class="p-5">
                             <span class="tag-pill mb-2 inline-block">Social Media</span>
                             <h4 class="font-display text-base font-bold text-white mt-2">Social Media Management</h4>
-                            <p class="text-gray-400 text-xs mt-1">Ngelola Instagram, TikTok, dan YouTube.</p>
+                            <p class="text-gray-300 text-xs mt-1">Ngelola Instagram, TikTok, dan YouTube.</p>
                         </div>
                     </div>
                 </div>
                 <div class="work-item reveal stagger-1" data-category="design" onclick="openDesignPage()">
                     <div class="card overflow-hidden cursor-pointer group border-purple-400/20">
                         <div class="aspect-video bg-gray-900 overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?w=800&auto=format&fit=crop&q=80" alt="Desain Grafis" class="w-full h-full object-cover card-img" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?w=800&auto=format&fit=crop&q=80" width="800" height="450" alt="Desain Grafis" class="w-full h-full object-cover card-img" loading="lazy">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60"></div>
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
@@ -1025,7 +1065,7 @@
                         <div class="p-5">
                             <span class="tag-pill mb-2 inline-block">Desain Grafis</span>
                             <h4 class="font-display text-base font-bold text-white mt-2">Koleksi Desain Grafis</h4>
-                            <p class="text-gray-400 text-xs mt-1">Klik untuk melihat portfolio desain grafis lengkap dengan preview geser.</p>
+                            <p class="text-gray-300 text-xs mt-1">Klik untuk melihat portfolio desain grafis lengkap dengan preview geser.</p>
                         </div>
                     </div>
                 </div>
@@ -1044,15 +1084,15 @@
             <div class="reveal text-center mb-12">
                 <p class="font-mono text-[10px] text-purple-400 tracking-[0.3em] uppercase mb-4">06 — CERTIFICATES</p>
                 <h2 class="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">Investasi dalam<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Pembelajaran</span></h2>
-                <p class="text-gray-400 text-sm max-w-lg mx-auto">Sertifikasi dan pelatihan yang udah saya selesaiin buat mastiin kualitas terbaik.</p>
+                <p class="text-gray-300 text-sm max-w-lg mx-auto">Sertifikasi dan pelatihan yang udah saya selesaiin buat mastiin kualitas terbaik.</p>
             </div>
 
             <!-- Carousel -->
             <div class="carousel-container reveal stagger-1">
-                <button class="carousel-arrow left" id="certArrowLeft" onclick="moveCarousel(-1)">
+                <button class="carousel-arrow left" id="certArrowLeft" onclick="moveCarousel(-1)" aria-label="Sertifikat sebelumnya">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 </button>
-                <button class="carousel-arrow right" id="certArrowRight" onclick="moveCarousel(1)">
+                <button class="carousel-arrow right" id="certArrowRight" onclick="moveCarousel(1)" aria-label="Sertifikat berikutnya">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
 
@@ -1060,143 +1100,143 @@
                     <div class="carousel-item" onclick="openModal('cert1')">
                         <div class="card overflow-hidden cursor-pointer group h-full">
                             <div class="aspect-[4/3] bg-gray-900 overflow-hidden relative">
-                                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80" width="800" height="600" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
                                 <div class="absolute bottom-3 left-3"><span class="tag-pill">Kampus Merdeka</span></div>
                             </div>
                             <div class="p-5">
                                 <h4 class="font-display font-bold text-white text-sm">Sertifikat Keikutsertaan</h4>
-                                <p class="text-xs text-gray-400 mt-1">PT Linkdataku Solusi Indonesia</p>
+                                <p class="text-xs text-gray-300 mt-1">PT Linkdataku Solusi Indonesia</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item" onclick="openModal('cert2')">
                         <div class="card overflow-hidden cursor-pointer group h-full">
                             <div class="aspect-[4/3] bg-gray-900 overflow-hidden relative">
-                                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80" width="800" height="600" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
                                 <div class="absolute bottom-3 left-3"><span class="tag-pill">MySkill</span></div>
                             </div>
                             <div class="p-5">
                                 <h4 class="font-display font-bold text-white text-sm">Certificate of Skill Specialization</h4>
-                                <p class="text-xs text-gray-400 mt-1">Social Media Marketing</p>
+                                <p class="text-xs text-gray-300 mt-1">Social Media Marketing</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item" onclick="openModal('cert3')">
                         <div class="card overflow-hidden cursor-pointer group h-full">
                             <div class="aspect-[4/3] bg-gray-900 overflow-hidden relative">
-                                <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80" width="800" height="600" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
                                 <div class="absolute bottom-3 left-3"><span class="tag-pill">Pintarnya</span></div>
                             </div>
                             <div class="p-5">
                                 <h4 class="font-display font-bold text-white text-sm">Certificate of Completion</h4>
-                                <p class="text-xs text-gray-400 mt-1">Social Media Specialist — Program Profesi</p>
+                                <p class="text-xs text-gray-300 mt-1">Social Media Specialist — Program Profesi</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item" onclick="openModal('cert4')">
                         <div class="card overflow-hidden cursor-pointer group h-full">
                             <div class="aspect-[4/3] bg-gray-900 overflow-hidden relative">
-                                <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80" width="800" height="600" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
                                 <div class="absolute bottom-3 left-3"><span class="tag-pill">Training Academy</span></div>
                             </div>
                             <div class="p-5">
                                 <h4 class="font-display font-bold text-white text-sm">Sertifikat Pelatihan</h4>
-                                <p class="text-xs text-gray-400 mt-1">Training Academy (TA)</p>
+                                <p class="text-xs text-gray-300 mt-1">Training Academy (TA)</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item" onclick="openModal('cert5')">
                         <div class="card overflow-hidden cursor-pointer group h-full">
                             <div class="aspect-[4/3] bg-gray-900 overflow-hidden relative">
-                                <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&auto=format&fit=crop&q=80" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&auto=format&fit=crop&q=80" width="800" height="600" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
                                 <div class="absolute bottom-3 left-3"><span class="tag-pill">Shopee</span></div>
                             </div>
                             <div class="p-5">
                                 <h4 class="font-display font-bold text-white text-sm">Certificate</h4>
-                                <p class="text-xs text-gray-400 mt-1">Digital Marketing at Shopee — Marketing Bootcamp</p>
+                                <p class="text-xs text-gray-300 mt-1">Digital Marketing at Shopee — Marketing Bootcamp</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item" onclick="openModal('cert6')">
                         <div class="card overflow-hidden cursor-pointer group h-full">
                             <div class="aspect-[4/3] bg-gray-900 overflow-hidden relative">
-                                <img src="https://images.unsplash.com/photo-1553484771-047a44eee27b?w=800&auto=format&fit=crop&q=80" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1553484771-047a44eee27b?w=800&auto=format&fit=crop&q=80" width="800" height="600" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
                                 <div class="absolute bottom-3 left-3"><span class="tag-pill">Appreciation</span></div>
                             </div>
                             <div class="p-5">
                                 <h4 class="font-display font-bold text-white text-sm">Certificate of Appreciation</h4>
-                                <p class="text-xs text-gray-400 mt-1">LENTERA FEBIK</p>
+                                <p class="text-xs text-gray-300 mt-1">LENTERA FEBIK</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item" onclick="openModal('cert7')">
                         <div class="card overflow-hidden cursor-pointer group h-full">
                             <div class="aspect-[4/3] bg-gray-900 overflow-hidden relative">
-                                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80" width="800" height="600" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
                                 <div class="absolute bottom-3 left-3"><span class="tag-pill">Committee</span></div>
                             </div>
                             <div class="p-5">
                                 <h4 class="font-display font-bold text-white text-sm">Sertifikat Panitia</h4>
-                                <p class="text-xs text-gray-400 mt-1">LENTERA FEBIK 2023</p>
+                                <p class="text-xs text-gray-300 mt-1">LENTERA FEBIK 2023</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item" onclick="openModal('cert8')">
                         <div class="card overflow-hidden cursor-pointer group h-full">
                             <div class="aspect-[4/3] bg-gray-900 overflow-hidden relative">
-                                <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80" width="800" height="600" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
                                 <div class="absolute bottom-3 left-3"><span class="tag-pill">Committee</span></div>
                             </div>
                             <div class="p-5">
                                 <h4 class="font-display font-bold text-white text-sm">Sertifikat Panitia</h4>
-                                <p class="text-xs text-gray-400 mt-1">Fakultas Bahasa & Ilmu Komunikasi 2023</p>
+                                <p class="text-xs text-gray-300 mt-1">Fakultas Bahasa & Ilmu Komunikasi 2023</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item" onclick="openModal('cert9')">
                         <div class="card overflow-hidden cursor-pointer group h-full">
                             <div class="aspect-[4/3] bg-gray-900 overflow-hidden relative">
-                                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80" width="800" height="600" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
                                 <div class="absolute bottom-3 left-3"><span class="tag-pill">Leadership</span></div>
                             </div>
                             <div class="p-5">
                                 <h4 class="font-display font-bold text-white text-sm">Sertifikat Kepengurusan</h4>
-                                <p class="text-xs text-gray-400 mt-1">Kepala Dept. Media & Komunikasi</p>
+                                <p class="text-xs text-gray-300 mt-1">Kepala Dept. Media & Komunikasi</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item" onclick="openModal('cert10')">
                         <div class="card overflow-hidden cursor-pointer group h-full">
                             <div class="aspect-[4/3] bg-gray-900 overflow-hidden relative">
-                                <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&auto=format&fit=crop&q=80" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&auto=format&fit=crop&q=80" width="800" height="600" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
                                 <div class="absolute bottom-3 left-3"><span class="tag-pill">Participation</span></div>
                             </div>
                             <div class="p-5">
                                 <h4 class="font-display font-bold text-white text-sm">Certificate of Participation</h4>
-                                <p class="text-xs text-gray-400 mt-1">Un-Halt 4U: Your Voice, Your Power</p>
+                                <p class="text-xs text-gray-300 mt-1">Un-Halt 4U: Your Voice, Your Power</p>
                             </div>
                         </div>
                     </div>
                     <div class="carousel-item" onclick="openModal('cert11')">
                         <div class="card overflow-hidden cursor-pointer group h-full">
                             <div class="aspect-[4/3] bg-gray-900 overflow-hidden relative">
-                                <img src="https://images.unsplash.com/photo-1553484771-047a44eee27b?w=800&auto=format&fit=crop&q=80" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1553484771-047a44eee27b?w=800&auto=format&fit=crop&q=80" width="800" height="600" class="w-full h-full object-cover card-img" alt="Sertifikat" loading="lazy">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
                                 <div class="absolute bottom-3 left-3"><span class="tag-pill">Committee</span></div>
                             </div>
                             <div class="p-5">
                                 <h4 class="font-display font-bold text-white text-sm">Sertifikat Panitia</h4>
-                                <p class="text-xs text-gray-400 mt-1">Seminar Ucomfest 2023</p>
+                                <p class="text-xs text-gray-300 mt-1">Seminar Ucomfest 2023</p>
                             </div>
                         </div>
                     </div>
@@ -1224,52 +1264,52 @@
                 <h2 class="font-display text-6xl md:text-7xl lg:text-8xl font-black text-white mb-6">Mari Bicara.</h2>
             </div>
             <div class="reveal stagger-2">
-                <p class="text-gray-400 text-base md:text-lg mb-12 max-w-xl mx-auto leading-relaxed">
+                <p class="text-gray-300 text-base md:text-lg mb-12 max-w-xl mx-auto leading-relaxed">
                     Punya ide yang mau diwujudin? Atau brand-mu butuh suara yang lebih keras di dunia digital? 
                     Saya selalu terbuka buat diskusi — tanpa komitmen, tanpa tekanan.
                 </p>
             </div>
-            <div class="reveal stagger-3 flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                <a href="mailto:hutamahegasatriya@gmail.com" class="btn-glow px-8 py-4 rounded-full text-sm font-display inline-flex items-center justify-center gap-2" data-hover>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    hutamahegasatriya@gmail.com
+            <div class="reveal stagger-3 flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 px-4">
+                <a href="mailto:hutamahegasatriya@gmail.com" class="btn-glow px-6 py-3 md:px-8 md:py-4 rounded-full text-xs md:text-sm font-display inline-flex items-center justify-center gap-2" data-hover>
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <span class="truncate">hutamahegasatriya@gmail.com</span>
                 </a>
-                <a href="https://wa.me/6288233634208" target="_blank" class="btn-outline px-8 py-4 rounded-full text-sm font-display inline-flex items-center justify-center gap-2" data-hover>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                <a href="https://wa.me/6288233634208" target="_blank" class="btn-outline px-6 py-3 md:px-8 md:py-4 rounded-full text-xs md:text-sm font-display inline-flex items-center justify-center gap-2" data-hover>
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                     +62 882-3363-4208
                 </a>
             </div>
-            <div class="reveal stagger-4 flex justify-center gap-3">
-                <a href="https://www.instagram.com/hegastriyaa/" target="_blank" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-purple-400 hover:border-purple-400 hover:text-black transition-all text-white" data-hover>
+            <div class="reveal stagger-4 flex flex-wrap justify-center gap-3 px-4">
+                <a href="https://www.instagram.com/hegastriyaa/" target="_blank" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-purple-400 hover:border-purple-400 hover:text-black transition-all text-white" data-hover aria-label="Instagram Hega Satriya">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
                 </a>
-                <a href="https://x.com/hegastriyaa" target="_blank" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-purple-400 hover:border-purple-400 hover:text-black transition-all text-white" data-hover>
+                <a href="https://x.com/hegastriyaa" target="_blank" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-purple-400 hover:border-purple-400 hover:text-black transition-all text-white" data-hover aria-label="X (Twitter) Hega Satriya">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                 </a>
-                <a href="https://www.tiktok.com/@hegastriyaa" target="_blank" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-purple-400 hover:border-purple-400 hover:text-black transition-all text-white" data-hover>
+                <a href="https://www.tiktok.com/@hegastriyaa" target="_blank" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-purple-400 hover:border-purple-400 hover:text-black transition-all text-white" data-hover aria-label="TikTok Hega Satriya">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
                 </a>
-                <a href="https://linkedin.com/in/hegasatriya" target="_blank" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-purple-400 hover:border-purple-400 hover:text-black transition-all text-white" data-hover>
+                <a href="https://linkedin.com/in/hegasatriya" target="_blank" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-purple-400 hover:border-purple-400 hover:text-black transition-all text-white" data-hover aria-label="LinkedIn Hega Satriya">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                 </a>
             </div>
             <div class="reveal stagger-5 mt-16 pt-8 border-t border-white/5">
-                <p class="text-gray-600 text-xs font-mono">© 2026 Hega Satriya Hutama</p>
-                <p class="text-gray-600 text-xs italic mt-2">"dibuat pake kopi, kurang tidur, dan banyak rasa penasaran."</p>
+                <p class="text-gray-400 text-xs font-mono">© 2026 Hega Satriya Hutama</p>
+                <p class="text-gray-400 text-xs italic mt-2">"dibuat pake kopi, kurang tidur, dan banyak rasa penasaran."</p>
             </div>
-        </div>
+        </footer>
         <div class="absolute bottom-8 left-8"><span class="slide-number">07 / 07</span></div>
     </section>
 
     <!-- Modal -->
-    <div id="modalOverlay" class="modal-overlay" onclick="closeModal(event)">
+    <div id="modalOverlay" class="modal-overlay" onclick="closeModal(event)" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between p-6 md:p-8 border-b border-white/10">
                 <div>
                     <h3 id="modalTitle" class="font-display text-2xl md:text-3xl font-bold text-white">Judul</h3>
                     <p id="modalSubtitle" class="text-sm text-purple-400 mt-1 font-mono uppercase tracking-wider">Subtitle</p>
                 </div>
-                <button onclick="closeModal()" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors text-white">
+                <button onclick="closeModal()" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors text-white" aria-label="Tutup modal">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -1278,12 +1318,21 @@
                 <div id="modalVideoSection" class="hidden mb-6"></div>
                 <!-- Gallery Section (if exists) -->
                 <div id="modalGallerySection" class="hidden mb-6"></div>
-                <div id="modalDescription" class="text-gray-400 leading-relaxed text-sm md:text-base"></div>
+                <div id="modalDescription" class="text-gray-300 leading-relaxed text-sm md:text-base"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // Defer non-critical JS
+        document.addEventListener('DOMContentLoaded', function() {
+            initCustomCursor();
+            initScrollNavigation();
+            initRevealObserver();
+            initCarousel();
+            updateActiveSection();
+        });
+
         // Custom Cursor
         const dot = document.getElementById('cursorDot');
         const ring = document.getElementById('cursorRing');
@@ -1354,8 +1403,21 @@
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenuOverlay');
             const isOpen = menu.classList.contains('open');
-            if (isOpen) { menu.classList.remove('open'); menu.style.opacity = '0'; menu.style.pointerEvents = 'none'; document.body.style.overflow = ''; }
-            else { menu.classList.add('open'); menu.style.opacity = '1'; menu.style.pointerEvents = 'all'; document.body.style.overflow = 'hidden'; }
+            if (isOpen) { 
+                menu.classList.remove('open'); 
+                document.body.style.overflow = ''; 
+                document.body.style.position = ''; 
+                document.body.style.width = ''; 
+                document.body.style.top = ''; 
+                window.scrollTo(0, parseInt(document.body.dataset.scrollY||'0'));
+            } else { 
+                document.body.dataset.scrollY = window.scrollY.toString();
+                document.body.style.overflow = 'hidden'; 
+                document.body.style.position = 'fixed'; 
+                document.body.style.width = '100%'; 
+                document.body.style.top = '-' + window.scrollY + 'px';
+                menu.classList.add('open'); 
+            }
         }
 
         // Work Filter
@@ -1527,7 +1589,7 @@
                     <div class="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
                         <svg class="w-12 h-12 text-purple-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         <h4 class="font-display font-bold text-white mb-2">Dokumen PDF</h4>
-                        <p class="text-gray-400 text-sm mb-4">File dokumen dapat diunduh atau dilihat langsung di bawah ini.</p>
+                        <p class="text-gray-300 text-sm mb-4">File dokumen dapat diunduh atau dilihat langsung di bawah ini.</p>
                         <a href="${data.pdf}" target="_blank" class="btn-glow px-6 py-3 rounded-full text-xs font-display inline-flex items-center gap-2 mb-4">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             Buka / Download PDF
@@ -1676,11 +1738,11 @@
 </script>
 
     <!-- ==================== DESIGN GRAPHIC PAGE (OVERLAY) ==================== -->
-    <div id="designPage" class="design-page">
+    <div id="designPage" class="design-page" role="dialog" aria-modal="true" aria-label="Portfolio Desain Grafis">
         <div class="min-h-screen px-6 py-8 md:px-12 md:py-12">
             <!-- Header -->
             <div class="max-w-6xl mx-auto flex items-center justify-between mb-10 md:mb-14">
-                <button onclick="closeDesignPage()" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group" data-hover>
+                <button onclick="closeDesignPage()" class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors group" data-hover>
                     <div class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:border-purple-400/40 group-hover:bg-purple-400/10 transition-all">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </div>
@@ -1688,7 +1750,7 @@
                 </button>
                 <div class="text-right">
                     <p class="font-mono text-[10px] text-purple-400 tracking-[0.3em] uppercase mb-1">PORTFOLIO</p>
-                    <h2 class="font-display text-2xl md:text-3xl font-bold text-white">Desain Grafis</h2>
+                    <h2 class="font-display text-xl md:text-3xl font-bold text-white">Desain Grafis</h2>
                 </div>
             </div>
 
@@ -1698,60 +1760,60 @@
                     <div class="design-track" id="designTrack">
                         <!-- Slide 1 -->
                         <div class="design-slide">
-                            <img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&auto=format&fit=crop&q=80" alt="Desain 1" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&auto=format&fit=crop&q=80" width="1200" height="675" alt="Desain 1" loading="lazy">
                             <div class="p-6 md:p-8 bg-[#0f0f1a] border-t border-white/5">
                                 <h3 class="font-display text-xl md:text-2xl font-bold text-white mb-2">Feed Instagram Brand Kuliner</h3>
-                                <p class="text-gray-400 text-sm leading-relaxed">Konsep desain feed Instagram dengan palet warna warm dan estetika food photography. Mencakup 9 grid post, story template, dan highlight cover.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Konsep desain feed Instagram dengan palet warna warm dan estetika food photography. Mencakup 9 grid post, story template, dan highlight cover.</p>
                             </div>
                         </div>
                         <!-- Slide 2 -->
                         <div class="design-slide">
-                            <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200&auto=format&fit=crop&q=80" alt="Desain 2" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200&auto=format&fit=crop&q=80" width="1200" height="675" alt="Desain 2" loading="lazy">
                             <div class="p-6 md:p-8 bg-[#0f0f1a] border-t border-white/5">
                                 <h3 class="font-display text-xl md:text-2xl font-bold text-white mb-2">Poster Event Kampus</h3>
-                                <p class="text-gray-400 text-sm leading-relaxed">Rancangan poster dan flyer untuk event seminar dan workshop di kampus. Mengutamakan hierarki informasi yang jelas dan visual yang menarik perhatian.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Rancangan poster dan flyer untuk event seminar dan workshop di kampus. Mengutamakan hierarki informasi yang jelas dan visual yang menarik perhatian.</p>
                             </div>
                         </div>
                         <!-- Slide 3 -->
                         <div class="design-slide">
-                            <img src="https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=1200&auto=format&fit=crop&q=80" alt="Desain 3" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=1200&auto=format&fit=crop&q=80" width="1200" height="675" alt="Desain 3" loading="lazy">
                             <div class="p-6 md:p-8 bg-[#0f0f1a] border-t border-white/5">
                                 <h3 class="font-display text-xl md:text-2xl font-bold text-white mb-2">Logo & Brand Identity</h3>
-                                <p class="text-gray-400 text-sm leading-relaxed">Pembuatan logo dan brand guideline untuk UMKM lokal. Meliputi logo primary, secondary, color palette, typography, dan mockup aplikasi.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Pembuatan logo dan brand guideline untuk UMKM lokal. Meliputi logo primary, secondary, color palette, typography, dan mockup aplikasi.</p>
                             </div>
                         </div>
                         <!-- Slide 4 -->
                         <div class="design-slide">
-                            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80" alt="Desain 4" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80" width="1200" height="675" alt="Desain 4" loading="lazy">
                             <div class="p-6 md:p-8 bg-[#0f0f1a] border-t border-white/5">
                                 <h3 class="font-display text-xl md:text-2xl font-bold text-white mb-2">Konten Media Sosial</h3>
-                                <p class="text-gray-400 text-sm leading-relaxed">Template konten harian untuk Instagram dan TikTok. Format carousel, single post, dan reels cover dengan gaya modern dan konsisten.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Template konten harian untuk Instagram dan TikTok. Format carousel, single post, dan reels cover dengan gaya modern dan konsisten.</p>
                             </div>
                         </div>
                         <!-- Slide 5 -->
                         <div class="design-slide">
-                            <img src="https://images.unsplash.com/photo-1634942537034-2531766767d1?w=1200&auto=format&fit=crop&q=80" alt="Desain 5" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1634942537034-2531766767d1?w=1200&auto=format&fit=crop&q=80" width="1200" height="675" alt="Desain 5" loading="lazy">
                             <div class="p-6 md:p-8 bg-[#0f0f1a] border-t border-white/5">
                                 <h3 class="font-display text-xl md:text-2xl font-bold text-white mb-2">Infografis & Ilustrasi</h3>
-                                <p class="text-gray-400 text-sm leading-relaxed">Desain infografis edukatif dan ilustrasi custom untuk keperluan akademik dan konten edukasi di media sosial.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Desain infografis edukatif dan ilustrasi custom untuk keperluan akademik dan konten edukasi di media sosial.</p>
                             </div>
                         </div>
                         <!-- Slide 6 -->
                         <div class="design-slide">
-                            <img src="https://images.unsplash.com/photo-1542744094-3a31f272c490?w=1200&auto=format&fit=crop&q=80" alt="Desain 6" loading="lazy">
+                            <img src="https://images.unsplash.com/photo-1542744094-3a31f272c490?w=1200&auto=format&fit=crop&q=80" width="1200" height="675" alt="Desain 6" loading="lazy">
                             <div class="p-6 md:p-8 bg-[#0f0f1a] border-t border-white/5">
                                 <h3 class="font-display text-xl md:text-2xl font-bold text-white mb-2">Packaging Design</h3>
-                                <p class="text-gray-400 text-sm leading-relaxed">Konsep desain kemasan produk dengan pendekatan sustainable dan estetika minimalis yang menonjol di rak penjualan.</p>
+                                <p class="text-gray-300 text-sm leading-relaxed">Konsep desain kemasan produk dengan pendekatan sustainable dan estetika minimalis yang menonjol di rak penjualan.</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Nav Buttons -->
-                <button class="design-nav prev" id="designPrev" onclick="moveDesignSlide(-1)">
+                <button class="design-nav prev" id="designPrev" onclick="moveDesignSlide(-1)" aria-label="Desain sebelumnya">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 </button>
-                <button class="design-nav next" id="designNext" onclick="moveDesignSlide(1)">
+                <button class="design-nav next" id="designNext" onclick="moveDesignSlide(1)" aria-label="Desain berikutnya">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
 
@@ -1759,12 +1821,12 @@
                 <div class="flex justify-center gap-3 mt-6" id="designDots"></div>
 
                 <!-- Counter -->
-                <p class="text-center text-gray-600 text-xs font-mono mt-4" id="designCounter">01 / 06</p>
+                <p class="text-center text-gray-400 text-xs font-mono mt-4" id="designCounter">01 / 06</p>
             </div>
 
             <!-- Footer -->
             <div class="max-w-5xl mx-auto mt-12 pt-8 border-t border-white/5 text-center">
-                <p class="text-gray-600 text-xs font-mono">© 2026 Hega Satriya Hutama — Desain Grafis Portfolio</p>
+                <p class="text-gray-400 text-xs font-mono">© 2026 Hega Satriya Hutama — Desain Grafis Portfolio</p>
             </div>
         </div>
     </div>
